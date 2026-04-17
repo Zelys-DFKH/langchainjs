@@ -56,6 +56,7 @@ import {
   createToolCallTransformer,
   createMiddlewareTransformer,
   type AgentRunStream,
+  type InferStreamExtensions,
 } from "./stream.js";
 
 import type {
@@ -164,7 +165,8 @@ export class ReactAgent<
     undefined,
     AnyAnnotationRoot,
     readonly AgentMiddleware[],
-    readonly (ClientTool | ServerTool)[]
+    readonly (ClientTool | ServerTool)[],
+    ReadonlyArray<() => StreamTransformer<any>>
   >,
 > {
   /**
@@ -1358,7 +1360,12 @@ export class ReactAgent<
       transformers?: ReadonlyArray<() => StreamTransformer<any>>;
     }
   ): Promise<
-    AgentRunStream<MergedAgentState<Types>, Types["Tools"], Types["Middleware"]>
+    AgentRunStream<
+      MergedAgentState<Types>,
+      Types["Tools"],
+      Types["Middleware"],
+      InferStreamExtensions<Types["StreamTransformers"]>
+    >
   > {
     type FullState = MergedAgentState<Types>;
 
@@ -1375,7 +1382,8 @@ export class ReactAgent<
     })) as unknown as AgentRunStream<
       FullState,
       Types["Tools"],
-      Types["Middleware"]
+      Types["Middleware"],
+      InferStreamExtensions<Types["StreamTransformers"]>
     >;
   }
 

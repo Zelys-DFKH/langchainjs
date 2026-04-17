@@ -3,6 +3,7 @@ import { z } from "zod/v3";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import { tool } from "@langchain/core/tools";
 import { fakeModel } from "@langchain/core/testing";
+import { StreamChannel, type StreamTransformer } from "@langchain/langgraph";
 
 import { createAgent, createMiddleware } from "../index.js";
 
@@ -85,5 +86,48 @@ describe("stream_experimental types", () => {
       }>();
       expectTypeOf(event.timestamp).toEqualTypeOf<number>();
     }
+  });
+
+  it("should type run.extensions from streamTransformers registered at creation time", async () => {
+    const model = fakeModel().respond(new AIMessage("ok"));
+
+    const eventCounter = (): StreamTransformer<{
+      eventCount: StreamChannel<number>;
+    }> => {
+      const eventCount = new StreamChannel<number>("eventCount");
+      return {
+        init: () => ({ eventCount }),
+        process() {
+          return true;
+        },
+      };
+    };
+
+    const methodTracker = (): StreamTransformer<{
+      methods: StreamChannel<string>;
+    }> => {
+      const methods = new StreamChannel<string>("methods");
+      return {
+        init: () => ({ methods }),
+        process() {
+          return true;
+        },
+      };
+    };
+
+    const agent = createAgent({
+      model,
+      tools: [],
+      streamTransformers: [eventCounter, methodTracker],
+    });
+
+    const run = await agent.stream_experimental({
+      messages: [new HumanMessage("hi")],
+    });
+
+    expectTypeOf(run.extensions.eventCount).toEqualTypeOf<
+      StreamChannel<number>
+    >();
+    expectTypeOf(run.extensions.methods).toEqualTypeOf<StreamChannel<string>>();
   });
 });

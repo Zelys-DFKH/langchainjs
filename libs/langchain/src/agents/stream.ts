@@ -18,6 +18,7 @@ import {
   EventLog,
   type NativeStreamTransformer,
   type ProtocolEvent,
+  type StreamTransformer,
   type ToolCallStream,
   type ToolCallStatus,
   type ToolsEventData,
@@ -34,6 +35,25 @@ import type {
   AgentMiddleware,
   InferMiddlewareState,
 } from "./middleware/types.js";
+
+/**
+ * Infers the merged extensions shape from a tuple of stream transformer
+ * factories. Mirrors `InferExtensions` from `@langchain/langgraph`, which
+ * is not exported from the package's public surface.
+ *
+ * Given `[() => StreamTransformer<{ a: number }>, () => StreamTransformer<{ b: string }>]`,
+ * produces `{ a: number } & { b: string }`.
+ */
+export type InferStreamExtensions<
+  T extends ReadonlyArray<() => StreamTransformer<any>>,
+> = T extends readonly []
+  ? Record<string, never>
+  : T extends readonly [
+        () => StreamTransformer<infer P>,
+        ...infer Rest extends ReadonlyArray<() => StreamTransformer<any>>,
+      ]
+    ? P & InferStreamExtensions<Rest>
+    : Record<string, unknown>;
 
 /** Extract the literal `name` string from a tool type. */
 type ToolNameOf<T> = T extends { name: infer N extends string } ? N : string;
@@ -120,6 +140,15 @@ export type MiddlewareEventUnion<
  * This is a pure type overlay — no runtime subclass exists.  Use the
  * `AgentRunStream` type when you need to describe the return type of
  * `stream_experimental()`.
+ *
+ * @typeParam TValues - Shape of the graph's state values.
+ * @typeParam TTools - Tuple of tools registered on the agent, used to type
+ *   the per-tool `toolCalls` discriminated union.
+ * @typeParam TMiddleware - Tuple of middleware registered on the agent, used
+ *   to type the per-middleware `middleware` event union.
+ * @typeParam TExtensions - Shape of `run.extensions` produced by user-supplied
+ *   stream transformer factories. Derived via
+ *   `InferExtensions<TStreamTransformers>`.
  */
 export type AgentRunStream<
   TValues = Record<string, unknown>,
@@ -128,7 +157,8 @@ export type AgentRunStream<
     | ServerTool
   )[],
   TMiddleware extends readonly AgentMiddleware[] = readonly AgentMiddleware[],
-> = GraphRunStream<TValues, any> & {
+  TExtensions extends Record<string, unknown> = Record<string, unknown>,
+> = GraphRunStream<TValues, TExtensions> & {
   /** Tool call streams from the native ToolCallTransformer. */
   toolCalls: AsyncIterable<ToolCallStreamUnion<TTools>>;
   /** Middleware lifecycle events from the native MiddlewareTransformer. */

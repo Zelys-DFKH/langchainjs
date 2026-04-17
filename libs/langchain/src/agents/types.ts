@@ -67,6 +67,10 @@ import type { JumpToTarget } from "./constants.js";
  * @typeParam TTools - The combined tools type from both `createAgent` tools parameter
  *   and middleware tools. This is a readonly array of `ClientTool | ServerTool`.
  *
+ * @typeParam TStreamTransformers - The tuple of user-supplied stream transformer
+ *   factories registered at `createAgent({ streamTransformers })`. Used to type
+ *   `run.extensions` on the stream returned from `stream_experimental()`.
+ *
  * @example
  * ```typescript
  * // Define a type configuration
@@ -75,7 +79,8 @@ import type { JumpToTarget } from "./constants.js";
  *   typeof MyStateSchema,              // State schema
  *   typeof MyContextSchema,            // Context schema
  *   typeof myMiddleware,               // Middleware array
- *   typeof myTools                     // Tools array
+ *   typeof myTools,                    // Tools array
+ *   typeof myStreamTransformers        // Stream transformer factories
  * >;
  *
  * // Use with ReactAgent
@@ -97,6 +102,9 @@ export interface AgentTypeConfig<
     | ClientTool
     | ServerTool
   )[],
+  TStreamTransformers extends ReadonlyArray<
+    () => StreamTransformer<any>
+  > = ReadonlyArray<() => StreamTransformer<any>>,
 > {
   /** The structured response type when using `responseFormat` */
   Response: TResponse;
@@ -108,6 +116,12 @@ export interface AgentTypeConfig<
   Middleware: TMiddleware;
   /** The combined tools type from agent and middleware */
   Tools: TTools;
+  /**
+   * The tuple of stream transformer factories registered at
+   * `createAgent({ streamTransformers })`. Used to infer the shape of
+   * `run.extensions` on the stream returned by `stream_experimental()`.
+   */
+  StreamTransformers: TStreamTransformers;
 }
 
 /**
@@ -120,6 +134,7 @@ export interface DefaultAgentTypeConfig extends AgentTypeConfig {
   Context: AnyAnnotationRoot;
   Middleware: readonly AgentMiddleware[];
   Tools: readonly (ClientTool | ServerTool)[];
+  StreamTransformers: readonly [];
 }
 
 /**
@@ -371,6 +386,25 @@ export type InferAgentMiddleware<T> = InferAgentType<T, "Middleware">;
  * ```
  */
 export type InferAgentTools<T> = InferAgentType<T, "Tools">;
+
+/**
+ * Shorthand helper to extract the StreamTransformers type (the tuple of
+ * transformer factories) from an AgentTypeConfig or ReactAgent.
+ *
+ * @example
+ * ```typescript
+ * const agent = createAgent({
+ *   streamTransformers: [costTracker, methodTracker],
+ *   // ...
+ * });
+ * type STF = InferAgentStreamTransformers<typeof agent>;
+ * // readonly [typeof costTracker, typeof methodTracker]
+ * ```
+ */
+export type InferAgentStreamTransformers<T> = InferAgentType<
+  T,
+  "StreamTransformers"
+>;
 
 export type N = typeof START | "model_request" | "tools";
 
