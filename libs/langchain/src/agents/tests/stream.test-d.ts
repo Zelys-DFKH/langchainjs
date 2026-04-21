@@ -15,7 +15,7 @@ describe("stream_v2 types", () => {
         name: "add",
         description: "Adds two numbers",
         schema: z.object({ a: z.number(), b: z.number() }),
-      },
+      }
     );
 
     const minusTool = tool(
@@ -25,7 +25,7 @@ describe("stream_v2 types", () => {
         name: "minus",
         description: "Subtracts two numbers",
         schema: z.object({ a: z.number(), b: z.number() }),
-      },
+      }
     );
 
     const model = fakeModel()

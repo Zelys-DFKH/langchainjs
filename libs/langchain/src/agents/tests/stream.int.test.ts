@@ -44,7 +44,7 @@ const addTool = tool(
     name: "add",
     description: "Adds two numbers",
     schema: z.object({ a: z.number(), b: z.number() }),
-  },
+  }
 );
 
 const minusTool = tool(
@@ -53,7 +53,7 @@ const minusTool = tool(
     name: "minus",
     description: "Subtracts two numbers",
     schema: z.object({ a: z.number(), b: z.number() }),
-  },
+  }
 );
 const middlewareA = createMiddleware({
   name: "trackerA",
@@ -117,14 +117,12 @@ const ALL_CHANNELS = [
   "values",
   "updates",
   "custom",
-  "debug",
-  "checkpoints",
   "tasks",
 ] as const;
 
 async function collectAllEvents(
   // oxlint-disable-next-line typescript/no-explicit-any
-  iterable: AsyncIterable<any>,
+  iterable: AsyncIterable<any>
 ): Promise<Map<string, unknown[]>> {
   const byChannel = new Map<string, unknown[]>();
   for await (const event of iterable) {
@@ -158,15 +156,10 @@ describe("stream_v2", () => {
     const client = new Client({ apiUrl: url! });
 
     const thread = await client.threads.create();
-    const run = await client.stream.open({
-      protocol_version: "0.3.0",
-      preferred_transports: ["sse-http"],
-      target: {
-        id: "agent",
-      },
+    const run = await client.threads.stream(thread.thread_id, {
+      assistantId: "agent",
     });
-
-    const subscription = await run.subscribe([...ALL_CHANNELS]);
+    const subscription = await run.subscribe({ channels: [...ALL_CHANNELS] });
 
     await run.run.input({
       input: {
@@ -259,7 +252,7 @@ describe("stream_v2", () => {
       expect.arrayContaining([
         expect.objectContaining({ name: "add", id: "call_1" }),
         expect.objectContaining({ name: "minus", id: "call_2" }),
-      ]),
+      ])
     );
 
     // tool updates carry the correct results

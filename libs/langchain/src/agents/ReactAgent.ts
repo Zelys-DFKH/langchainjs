@@ -1376,7 +1376,6 @@ export class ReactAgent<
       mergedConfig as RunnableConfig
     );
 
-    // @ts-expect-error - stream_v2 is not yet renamed
     return (await this.#graph.stream_v2(initializedState, {
       ...(mergedConfig as Record<string, any>),
       transformers: callSiteTransformers,
