@@ -9,7 +9,7 @@ import { MemorySaver } from "@langchain/langgraph-checkpoint";
 import { createAgent, createMiddleware } from "../index.js";
 import { humanInTheLoopMiddleware } from "../middleware/hitl.js";
 
-describe("stream_experimental", () => {
+describe("stream_v2", () => {
   it("should emit tool call streams for each tool invocation", async () => {
     const addTool = tool(
       (input: { a: number; b: number }) => `The sum is ${input.a + input.b}`,
@@ -17,7 +17,7 @@ describe("stream_experimental", () => {
         name: "add",
         description: "Adds two numbers",
         schema: z.object({ a: z.number(), b: z.number() }),
-      }
+      },
     );
 
     const minusTool = tool(
@@ -27,7 +27,7 @@ describe("stream_experimental", () => {
         name: "minus",
         description: "Subtracts two numbers",
         schema: z.object({ a: z.number(), b: z.number() }),
-      }
+      },
     );
 
     const model = fakeModel()
@@ -38,7 +38,7 @@ describe("stream_experimental", () => {
       .respond(new AIMessage("The answer is 7."));
 
     const agent = createAgent({ model, tools: [addTool, minusTool] });
-    const run = await agent.stream_experimental({
+    const run = await agent.stream_v2({
       messages: [new HumanMessage("What is 3 + 4?")],
     });
 
@@ -90,7 +90,7 @@ describe("stream_experimental", () => {
       middleware: [testMiddleware],
     });
 
-    const run = await agent.stream_experimental({
+    const run = await agent.stream_v2({
       messages: [new HumanMessage("hello")],
     });
 
@@ -124,7 +124,7 @@ describe("stream_experimental", () => {
         name: "search",
         description: "Search the web",
         schema: z.object({ query: z.string() }),
-      }
+      },
     );
 
     const model = fakeModel()
@@ -134,7 +134,7 @@ describe("stream_experimental", () => {
       .respond(new AIMessage("The weather is sunny."));
 
     const agent = createAgent({ model, tools: [searchTool] });
-    const run = await agent.stream_experimental({
+    const run = await agent.stream_v2({
       messages: [new HumanMessage("Search for weather")],
     });
 
@@ -162,7 +162,7 @@ describe("stream_experimental", () => {
         name: "multiply",
         description: "Multiplies two numbers",
         schema: z.object({ a: z.number(), b: z.number() }),
-      }
+      },
     );
 
     const model = fakeModel()
@@ -187,7 +187,7 @@ describe("stream_experimental", () => {
       middleware: [middleware],
     });
 
-    const run = await agent.stream_experimental({
+    const run = await agent.stream_v2({
       messages: [new HumanMessage("What is 6 * 7?")],
     });
 
@@ -227,7 +227,7 @@ describe("stream_experimental", () => {
   it("should resolve output with the final agent state", async () => {
     const model = fakeModel().respond(new AIMessage("hi there"));
     const agent = createAgent({ model, tools: [] });
-    const run = await agent.stream_experimental({
+    const run = await agent.stream_v2({
       messages: [new HumanMessage("hi")],
     });
 
@@ -263,7 +263,7 @@ describe("stream_experimental", () => {
       streamTransformers: [eventCounter],
     });
 
-    const run = await agent.stream_experimental({
+    const run = await agent.stream_v2({
       messages: [new HumanMessage("hi")],
     });
 
@@ -276,7 +276,7 @@ describe("stream_experimental", () => {
     expect(counts[counts.length - 1]).toBe(counts.length);
   });
 
-  it("should pass call-site transformers via stream_experimental config", async () => {
+  it("should pass call-site transformers via stream_v2 config", async () => {
     const model = fakeModel().respond(new AIMessage("ok"));
     const agent = createAgent({ model, tools: [] });
 
@@ -293,9 +293,9 @@ describe("stream_experimental", () => {
       };
     };
 
-    const run = await agent.stream_experimental(
+    const run = await agent.stream_v2(
       { messages: [new HumanMessage("hi")] },
-      { transformers: [methodTracker] }
+      { transformers: [methodTracker] },
     );
 
     const seenMethods: string[] = [];
@@ -314,7 +314,7 @@ describe("stream_experimental", () => {
         name: "add",
         description: "Adds two numbers",
         schema: z.object({ a: z.number(), b: z.number() }),
-      }
+      },
     );
 
     const model = fakeModel()
@@ -325,7 +325,7 @@ describe("stream_experimental", () => {
       .respond(new AIMessage("Done: 3 and 7"));
 
     const agent = createAgent({ model, tools: [addTool] });
-    const run = await agent.stream_experimental({
+    const run = await agent.stream_v2({
       messages: [new HumanMessage("Add 1+2 and 3+4")],
     });
 
@@ -356,7 +356,7 @@ describe("stream_experimental", () => {
           filename: z.string(),
           content: z.string(),
         }),
-      }
+      },
     );
 
     const hitl = humanInTheLoopMiddleware({
@@ -385,9 +385,9 @@ describe("stream_experimental", () => {
 
     const config = { configurable: { thread_id: "hitl-stream-test" } };
 
-    const run = await agent.stream_experimental(
+    const run = await agent.stream_v2(
       { messages: [new HumanMessage("Write hello to test.txt")] },
-      config
+      config,
     );
 
     const state = await run.output;

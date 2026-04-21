@@ -7,7 +7,7 @@ import { StreamChannel, type StreamTransformer } from "@langchain/langgraph";
 
 import { createAgent, createMiddleware } from "../index.js";
 
-describe("stream_experimental types", () => {
+describe("stream_v2 types", () => {
   it("should type tool calls as a discriminated union", async () => {
     const addTool = tool(
       (input: { a: number; b: number }) => `The sum is ${input.a + input.b}`,
@@ -15,7 +15,7 @@ describe("stream_experimental types", () => {
         name: "add",
         description: "Adds two numbers",
         schema: z.object({ a: z.number(), b: z.number() }),
-      }
+      },
     );
 
     const minusTool = tool(
@@ -25,7 +25,7 @@ describe("stream_experimental types", () => {
         name: "minus",
         description: "Subtracts two numbers",
         schema: z.object({ a: z.number(), b: z.number() }),
-      }
+      },
     );
 
     const model = fakeModel()
@@ -36,7 +36,7 @@ describe("stream_experimental types", () => {
       .respond(new AIMessage("The answer is 7."));
 
     const agent = createAgent({ model, tools: [addTool, minusTool] });
-    const run = await agent.stream_experimental({
+    const run = await agent.stream_v2({
       messages: [new HumanMessage("What is 3 + 4?")],
     });
 
@@ -72,7 +72,7 @@ describe("stream_experimental types", () => {
       middleware: [tracker],
     });
 
-    const run = await agent.stream_experimental({
+    const run = await agent.stream_v2({
       messages: [new HumanMessage("hi")],
     });
 
@@ -121,7 +121,7 @@ describe("stream_experimental types", () => {
       streamTransformers: [eventCounter, methodTracker],
     });
 
-    const run = await agent.stream_experimental({
+    const run = await agent.stream_v2({
       messages: [new HumanMessage("hi")],
     });
 

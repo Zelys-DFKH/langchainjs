@@ -674,9 +674,8 @@ export function createAgent<
     | ClientTool
     | ServerTool
   )[],
-  TStreamTransformers extends ReadonlyArray<
-    () => StreamTransformer<any>
-  > = readonly [],
+  TStreamTransformers extends ReadonlyArray<() => StreamTransformer<any>> =
+    readonly [],
 >(
   params: CreateAgentParams<
     StructuredResponseFormat,

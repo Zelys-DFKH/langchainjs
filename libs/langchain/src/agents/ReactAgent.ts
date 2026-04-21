@@ -176,7 +176,7 @@ export class ReactAgent<
    */
   declare readonly "~agentTypes": Types;
 
-  #graph: AgentGraph<Types>;
+  #graph: CompiledStateGraph<any, any, any, any, any, any, unknown>;
 
   #toolBehaviorVersion: "v1" | "v2" = "v2";
 
@@ -1326,7 +1326,7 @@ export class ReactAgent<
    *
    * @example
    * ```typescript
-   * const run = await agent.stream_experimental({
+   * const run = await agent.stream_v2({
    *   messages: [{ role: "user", content: "What's the weather in Paris?" }],
    * });
    *
@@ -1347,7 +1347,7 @@ export class ReactAgent<
    * const state = await run.output;
    * ```
    */
-  async stream_experimental(
+  async stream_v2(
     state: InvokeStateParameter<Types>,
     config?: InvokeConfiguration<
       InferContextInput<
@@ -1376,7 +1376,8 @@ export class ReactAgent<
       mergedConfig as RunnableConfig
     );
 
-    return (await this.#graph.streamV2(initializedState, {
+    // @ts-expect-error - stream_v2 is not yet renamed
+    return (await this.#graph.stream_v2(initializedState, {
       ...(mergedConfig as Record<string, any>),
       transformers: callSiteTransformers,
     })) as unknown as AgentRunStream<

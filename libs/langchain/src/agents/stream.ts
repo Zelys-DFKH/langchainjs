@@ -139,7 +139,7 @@ export type MiddlewareEventUnion<
  *
  * This is a pure type overlay — no runtime subclass exists.  Use the
  * `AgentRunStream` type when you need to describe the return type of
- * `stream_experimental()`.
+ * `stream_v2()`.
  *
  * @typeParam TValues - Shape of the graph's state values.
  * @typeParam TTools - Tuple of tools registered on the agent, used to type
@@ -194,7 +194,7 @@ function isOwnEvent(ns: Namespace, path: Namespace): boolean {
  * `GraphRunStream` instance as `run.toolCalls`.
  */
 export function createToolCallTransformer(
-  path: Namespace
+  path: Namespace,
 ): () => NativeStreamTransformer<ToolCallProjection> {
   return () => {
     const toolCallsLog = new EventLog<ToolCallStream>();
@@ -212,7 +212,7 @@ export function createToolCallTransformer(
     function createToolCallEntry(
       callId: string,
       name: string,
-      rawInput: unknown
+      rawInput: unknown,
     ): void {
       if (pendingCalls.has(callId)) return;
       const input =
@@ -274,7 +274,7 @@ export function createToolCallTransformer(
               createToolCallEntry(
                 String(cb.id ?? ""),
                 String(cb.name ?? ""),
-                cb.args ?? cb.input
+                cb.args ?? cb.input,
               );
             }
           }
@@ -290,7 +290,7 @@ export function createToolCallTransformer(
               toolCallId,
               ((data as Record<string, unknown>).tool_name as string) ??
                 "unknown",
-              (data as Record<string, unknown>).input
+              (data as Record<string, unknown>).input,
             );
           }
 
@@ -331,7 +331,7 @@ export function createToolCallTransformer(
         for (const pending of pendingCalls.values()) {
           pending.resolveStatus("error");
           pending.resolveError(
-            err instanceof Error ? err.message : String(err)
+            err instanceof Error ? err.message : String(err),
           );
           pending.rejectOutput(err);
         }
@@ -358,7 +358,7 @@ const MIDDLEWARE_NODE_PATTERN =
  * `GraphRunStream` instance as `run.middleware`.
  */
 export function createMiddlewareTransformer(
-  path: Namespace
+  path: Namespace,
 ): () => NativeStreamTransformer<MiddlewareProjection> {
   return () => {
     const middlewareLog = new EventLog<MiddlewareEvent>();
