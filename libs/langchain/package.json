@@ -46,8 +46,8 @@
     "@langchain/anthropic": "workspace:*",
     "@langchain/core": "workspace:^",
     "@langchain/fireworks": "workspace:*",
-    "@langchain/langgraph-api": "https://pkg.pr.new/langchain-ai/langgraphjs/@langchain/langgraph-api@1136278",
-    "@langchain/langgraph-sdk": "https://pkg.pr.new/langchain-ai/langgraphjs/@langchain/langgraph-sdk@1136278",
+    "@langchain/langgraph-api": "https://pkg.pr.new/langchain-ai/langgraphjs/@langchain/langgraph-api@64ebe00",
+    "@langchain/langgraph-sdk": "https://pkg.pr.new/langchain-ai/langgraphjs/@langchain/langgraph-sdk@64ebe00",
     "@langchain/openai": "workspace:*",
     "@langchain/tsconfig": "workspace:*",
     "@tsconfig/recommended": "^1.0.2",
@@ -74,7 +74,7 @@
     "@langchain/core": "workspace:^"
   },
   "dependencies": {
-    "@langchain/langgraph": "https://pkg.pr.new/langchain-ai/langgraphjs/@langchain/langgraph@1136278",
+    "@langchain/langgraph": "https://pkg.pr.new/langchain-ai/langgraphjs/@langchain/langgraph@64ebe00",
     "@langchain/langgraph-checkpoint": "^1.0.1",
     "langsmith": ">=0.5.0 <1.0.0",
     "uuid": "^11.1.0",
